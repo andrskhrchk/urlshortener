@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 
 	_ "github.com/lib/pq"
 )
@@ -43,6 +45,15 @@ func (s *Storage) SaveURLShort(longURL string) (string, error) {
 	//Rollback in case of the problem
 	defer tx.Rollback()
 
+	code, err := s.checkForDuplicates(longURL, tx)
+	if err == nil {
+		return code, tx.Commit()
+	}
+
+	if !errors.Is(err, sql.ErrNoRows) {
+		return "", fmt.Errorf("check duplicates error: %w ", err)
+	}
+
 	var id int
 
 	err = tx.QueryRow(`INSERT INTO links (long_url) VALUES ($1) RETURNING id`, longURL).Scan(&id)
@@ -50,7 +61,7 @@ func (s *Storage) SaveURLShort(longURL string) (string, error) {
 		return "", err
 	}
 
-	code := EncodeBase62(id)
+	code = EncodeBase62(id)
 
 	_, err = tx.Exec(`UPDATE links SET short_code = $1 WHERE id = $2`, code, id)
 	if err != nil {
@@ -68,4 +79,14 @@ func (s *Storage) GetLongURL(code string) (string, error) {
 		return "", err
 	}
 	return longURL, nil
+}
+
+func (s *Storage) checkForDuplicates(longURL string, tx *sql.Tx) (string, error) {
+	query := `SELECT short_code FROM links WHERE long_url = $1`
+	var code string
+	err := tx.QueryRow(query, longURL).Scan(&code)
+	if err != nil {
+		return "", err
+	}
+	return code, nil
 }
