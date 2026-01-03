@@ -14,6 +14,8 @@ func main() {
 		log.Fatal(err)
 	}
 	storage.Init()
-	StartServer(storage)
+
+	srv := NewServer(storage)
+	srv.Start()
 
 }
