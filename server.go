@@ -46,18 +46,10 @@ func (srv *Server) handleShorten(w http.ResponseWriter, r *http.Request) {
 	longURL := r.FormValue("long_url")
 	fmt.Printf("Ссылка: %s\n", longURL)
 
-	id, err := srv.storage.SaveURL(longURL)
+	code, err := srv.storage.SaveURLShort(longURL)
 	if err != nil {
 		log.Printf("Ошибка записи в БД: %v", err)
 		http.Error(w, "Ошибка сохранения", 500)
-		return
-	}
-
-	code := EncodeBase62(id)
-
-	if srv.storage.AddShortCode(id, code) != nil {
-		log.Printf("Ошибка при обновлении short_code в БД: %v", err)
-		http.Error(w, "Не удалось завершить создание ссылки", http.StatusInternalServerError)
 		return
 	}
 

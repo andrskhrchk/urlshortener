@@ -34,22 +34,30 @@ func (s *Storage) Init() error {
 	return err
 }
 
-func (s *Storage) SaveURL(longURL string) (int, error) {
-	var id int
-	query := `INSERT INTO links (long_url) VALUES ($1) RETURNING id`
-
-	err := s.db.QueryRow(query, longURL).Scan(&id)
+func (s *Storage) SaveURLShort(longURL string) (string, error) {
+	//Creating transaction
+	tx, err := s.db.Begin()
 	if err != nil {
-		return 0, err
+		return "", err
+	}
+	//Rollback in case of the problem
+	defer tx.Rollback()
+
+	var id int
+
+	err = tx.QueryRow(`INSERT INTO links (long_url) VALUES ($1) RETURNING id`, longURL).Scan(&id)
+	if err != nil {
+		return "", err
 	}
 
-	return id, nil
-}
+	code := EncodeBase62(id)
 
-func (s *Storage) AddShortCode(id int, code string) error {
-	query := `UPDATE links SET short_code = $1 WHERE id = $2`
-	_, err := s.db.Exec(query, code, id)
-	return err
+	_, err = tx.Exec(`UPDATE links SET short_code = $1 WHERE id = $2`, code, id)
+	if err != nil {
+		return "", err
+	}
+
+	return code, tx.Commit()
 }
 
 func (s *Storage) GetLongURL(code string) (string, error) {
