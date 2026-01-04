@@ -1,4 +1,4 @@
-package main
+package shortener
 
 const charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 

@@ -1,18 +1,20 @@
-package main
+package server
 
 import (
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+
+	"example.com/internal/storage"
 )
 
 type Server struct {
-	storage *Storage
+	repo storage.URLRepository
 }
 
-func NewServer(s *Storage) *Server {
-	return &Server{storage: s}
+func NewServer(repo storage.URLRepository) *Server {
+	return &Server{repo: repo}
 }
 
 func (srv *Server) Start() {
@@ -46,7 +48,7 @@ func (srv *Server) handleShorten(w http.ResponseWriter, r *http.Request) {
 	longURL := r.FormValue("long_url")
 	fmt.Printf("Ссылка: %s\n", longURL)
 
-	code, err := srv.storage.SaveURLShort(longURL)
+	code, err := srv.repo.SaveURLShort(longURL)
 	if err != nil {
 		log.Printf("Ошибка записи в БД: %v", err)
 		http.Error(w, "Ошибка сохранения", 500)
@@ -60,7 +62,7 @@ func (srv *Server) handleShorten(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) handleRedirect(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Path[len("/r/"):]
 
-	longURL, err := srv.storage.GetLongURL(code)
+	longURL, err := srv.repo.GetLongURL(code)
 	if err != nil {
 		http.Error(w, "Ссылка не найдена", 500)
 		return

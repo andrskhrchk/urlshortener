@@ -1,10 +1,11 @@
-package main
+package postgres
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
 
+	"example.com/internal/shortener"
 	_ "github.com/lib/pq"
 )
 
@@ -61,7 +62,7 @@ func (s *Storage) SaveURLShort(longURL string) (string, error) {
 		return "", err
 	}
 
-	code = EncodeBase62(id)
+	code = shortener.EncodeBase62(id)
 
 	_, err = tx.Exec(`UPDATE links SET short_code = $1 WHERE id = $2`, code, id)
 	if err != nil {
