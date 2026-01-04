@@ -1,0 +1,28 @@
+<head>
+  <meta charset="UTF-8" />
+  <title>GoShort - Главная</title>
+  <link rel="stylesheet" href="/static/css/common.css" />
+  <link rel="stylesheet" href="/static/css/index.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="logo-icon">🚀</div>
+    <h1>GoShort</h1>
+    <form action="/shorten" method="POST">
+      <input
+        type="url"
+        name="long_url"
+        placeholder="Вставьте ссылку"
+        required
+      />
+      <button type="submit" class="btn">Сократить</button>
+    </form>
+
+    {{ if .ShortURL }}
+    <div class="result-box">
+      <p>Ваша ссылка готова:</p>
+      <a href="{{ .ShortURL }}" target="_blank">{{ .ShortURL }}</a>
+    </div>
+    {{ end }}
+  </div>
+</body>

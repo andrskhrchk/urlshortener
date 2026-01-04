@@ -1,0 +1,42 @@
+:root {
+    --primary-color: #00b894;
+    --primary-hover: #00a884;
+    --bg-color: #f0f2f5;
+    --text-color: #2d3436;
+    --card-bg: #ffffff;
+}
+
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    background: var(--bg-color); 
+    margin: 0; 
+    color: var(--text-color);
+}
+
+.container { 
+    background: var(--card-bg); 
+    padding: 2.5rem; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+    width: 90%; 
+    max-width: 400px; 
+    text-align: center; 
+}
+.btn {
+    width: 100%; 
+    padding: 12px; 
+    background: var(--primary-color); 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn:hover { background: var(--primary-hover); }
